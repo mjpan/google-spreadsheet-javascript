@@ -1,0 +1,100 @@
+<!DOCTYPE html> 
+<html> 
+	<head> 
+    <title>Google Spreadsheet Javascript</title> 
+
+<link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+<script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="jquery-1.4.4.min.js"></script>
+
+
+    <script type="text/javascript" src="google-spreadsheet.js"></script>
+    <script type="text/javascript" src="format.js"></script>
+    <style>
+      body{
+        background-color: white;
+        color: black;
+        font-size: .8em;
+        font-family: sans-serif;
+      }
+      h1{ color: black}
+      a{ color: black}
+      textinput{
+        font-size: .8em;
+        background-color: black;
+        color:white;
+      }
+      .question {
+      font-size:12pt;
+      font-weight:bold;
+      }
+      .response {
+      font-size:10pt;
+      overflow: auto;
+      word-wrap: break-word;
+      width: 95%
+      }
+      #navigation {
+      position:fixed;
+      top:0;
+      left:10;
+      }
+      #results {
+      position:absolute;
+      top:50px;
+      left:120px
+      }
+    </style>
+  </head> 
+  <body> 
+
+    <!--
+    <h1>Google Spreadsheet Javascript</h1>
+    Here is the most basic usage:
+    <pre id='code'></pre>
+    -->
+
+
+    <div id="navigation">
+    <div id="pagenumber"></div>
+    <div id="jumpto">
+      <button class="btn btn-small" onclick="displaySpecified()">Go to</button>      
+      <input type="text" class="input-mini" id="jumpto_input" size="2"></input>
+    </div>
+    <div id="buttons">
+      <button class="btn btn-small" onclick="displayPrevious()">Previous</button>
+      <button class="btn btn-small" onclick="displayNext()">Next</button>
+    </div>
+    </div>
+
+    <div id="results"></div>
+
+
+    <script id='script'>
+
+      localStorage.clear();
+
+
+
+      var url_parameter = document.location.search.split(/\?url=/)[1]
+      //var url = url_parameter || applicant_url;
+      var url = url_parameter;
+
+      var googleSpreadsheet = new GoogleSpreadsheet();
+      googleSpreadsheet.url(url);
+      googleSpreadsheet.load(function(result) {
+
+      //var rows = parseResultIntoRows(result);
+      var htmlRowLines = formatRows(result);
+
+      rowsAsHtml = htmlRowLines;
+      currentRowIndex = 0;
+      displayCurrentRow();
+      
+      });
+    </script>
+
+  </body>
+</html>
+

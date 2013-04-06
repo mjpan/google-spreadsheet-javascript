@@ -17,6 +17,7 @@ GoogleUrl = (function() {
     this.jsonCellsUrl = "http://spreadsheets.google.com/feeds/cells/" + this.key + "/od6/public/basic?alt=json-in-script";
     this.jsonListUrl = "http://spreadsheets.google.com/feeds/list/" + this.key + "/od6/public/basic?alt=json-in-script";
     this.jsonUrl = this.jsonCellsUrl;
+    //  this.jsonUrl = this.jsonListUrl;
   }
   return GoogleUrl;
 })();
@@ -24,7 +25,8 @@ GoogleSpreadsheet = (function() {
   function GoogleSpreadsheet() {}
   GoogleSpreadsheet.prototype.load = function(callback) {
     var intervalId, jsonUrl, safetyCounter, url, waitUntilLoaded;
-    url = this.googleUrl.jsonCellsUrl + "&callback=GoogleSpreadsheet.callbackCells";
+    url = this.googleUrl.jsonUrl + "&callback=GoogleSpreadsheet.callbackCells";
+    //url = this.googleUrl.jsonUrl + "&callback=GoogleSpreadsheet.callbackList";
     $('body').append("<script src='" + url + "'/>");
     jsonUrl = this.jsonUrl;
     safetyCounter = 0;
@@ -113,10 +115,26 @@ GoogleSpreadsheet.callbackCells = function(data) {
     var _i, _len, _ref, _results;
     _ref = data.feed.entry;
     _results = [];
+
+      var rowIndex = 1;
+      var rowValues = {};
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       cell = _ref[_i];
-      _results.push(cell.content.$t);
+      //_results.push(cell.content.$t || "");
+	var title = cell.title.$t;
+	var column = title.substring(0,1);
+	var row = title.substring(1, title.length);
+	if (rowIndex != row) {
+	    _results.push(rowValues);
+	    rowValues = {};
+	    rowIndex = row;
+	}
+	else {
+	    rowValues[column] = cell.content.$t;
+	}
     }
+      _results.push(rowValues);
+
     return _results;
   })();
   googleSpreadsheet.save();
@@ -124,3 +142,30 @@ GoogleSpreadsheet.callbackCells = function(data) {
 };
 /* TODO (Handle row based data)
 GoogleSpreadsheet.callbackList = (data) ->*/
+GoogleSpreadsheet.callbackList = function(data) {
+  var cell, googleSpreadsheet, googleUrl;
+  googleUrl = new GoogleUrl(data.feed.id.$t);
+  googleSpreadsheet = GoogleSpreadsheet.find({
+    jsonUrl: googleUrl.jsonUrl
+  });
+  if (googleSpreadsheet === null) {
+    googleSpreadsheet = new GoogleSpreadsheet();
+    googleSpreadsheet.googleUrl(googleUrl);
+  }
+  googleSpreadsheet.data = (function() {
+    var _i, _len, _ref, _results;
+    _ref = data.feed.entry;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+
+      //cell = _ref[_i];
+      //_results.push(cell.content.$t || "");
+	var rawRow = _ref[_i];
+	var rawContents = rawRow.content.$t;
+	_results.push(rawRow.content.$t);
+    }
+    return _results;
+  })();
+  googleSpreadsheet.save();
+  return googleSpreadsheet;
+};

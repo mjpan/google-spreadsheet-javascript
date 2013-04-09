@@ -43,7 +43,8 @@
       #results {
       position:absolute;
       top:50px;
-      left:120px
+      left:120px;
+      z-index:-10
       }
     </style>
   </head> 
@@ -56,16 +57,30 @@
     -->
 
 
-    <div id="navigation">
-    <div id="pagenumber"></div>
-    <div id="jumpto">
-      <button class="btn btn-small" onclick="displaySpecified()">Go to</button>      
-      <input type="text" class="input-mini" id="jumpto_input" size="2"></input>
-    </div>
-    <div id="buttons">
-      <button class="btn btn-small" onclick="displayPrevious()">Previous</button>
-      <button class="btn btn-small" onclick="displayNext()">Next</button>
-    </div>
+    <div id="navigation" class="navbar">
+
+      <div class="navbar-inner">
+	<a class="brand" id="pagenumber" href="#">Applicants</a>
+	<ul class="nav">
+	  <li>
+	  <div id="jumpto">
+	    <button class="btn btn-small" onclick="displaySpecified()">Go to</button>
+	    <input type="text" class="input-mini" id="jumpto_input" size="2"></input>
+	  </div>
+	  </li>
+	  <li>
+	    <button class="btn btn-small" onclick="displayPrevious()">Previous</button>
+	  </li>
+	  <li>
+	    <button class="btn btn-small" onclick="displayNext()">Next</button>
+	  </li>
+	  <li>
+	    <form class="navbar-search pull-left">
+	      <input id="searchtext" type="text" class="search-query" placeholder="Search">
+	    </form>
+	    <button class="btn btn-small" onclick="search()">Search</button>
+	  </li>
+      </div>
     </div>
 
     <div id="results"></div>

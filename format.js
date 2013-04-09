@@ -1,18 +1,51 @@
+var rawRows = null;
 var currentRowIndex = 0;
 var rowsAsHtml = null;
 
 
-var displaySpecified = function() {
-    var textinput = document.getElementById("jumpto_input");
-    var page = parseInt(textinput.value) - 1;
+var search = function() {
+    var results = []
+    var searchtext = document.getElementById("searchtext").value.toLowerCase();
+    for (var index in rawRows) {
+	var rawRow = rawRows[index];
+	var found = false;
+	for (var responseIndex in rawRow) {
+	    var value = rawRow[responseIndex].toLowerCase();
+	    if (value.indexOf(searchtext) >= 0) {
+		found = true;
+		break;
+	    }
+	}
+	if (found) {
+	    var internalIndex = index-1;
+	    //results.push(index);
+	    results.push('<li><button class="btn btn-link" onclick="displayIndex('+internalIndex+')">'+index+'</button></li>');
+	}
+    }
+    //console.log("results: "+results);
+
+    results.join('');
+    $('#results').html('<ul>'+results.join('')+'</ul>');
+}
+
+
+var displayIndex = function(index) {
+
     var length = rowsAsHtml.length;
-    if (page < 0 || page >= length) {
+    if (index < 0 || index >= length) {
 	alert("out of range!");
 	return;
     }
-    textinput.value = '';
-    currentRowIndex = page;
+    currentRowIndex = index;
     displayCurrentRow();
+
+};
+
+var displaySpecified = function() {
+    var textinput = document.getElementById("jumpto_input");
+    var page = parseInt(textinput.value) - 1;
+    textinput.value = '';
+    displayIndex(page);
 }
 
 var displayPrevious = function() {
@@ -47,6 +80,8 @@ var displayCurrentRow = function() {
 var formatRows = function(result) {
 
     var rows = result.data;
+    rawRows = rows;
+
     var length = rows.length;
 
     var headers = rows[0];

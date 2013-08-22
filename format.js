@@ -3,15 +3,42 @@ var currentRowIndex = 0;
 var rowsAsHtml = null;
 
 
-var search = function() {
-    var results = []
+var searchResults = null;
+
+var onUserClickedReset = function() {
+    document.getElementById("searchtext").value = '';
+    reset();
+};
+
+var reset = function() {
+    searchResults = null;
+    displayCurrentRow();
+};
+
+
+
+var onUserClickedSearch = function() {
     var searchtext = document.getElementById("searchtext").value.toLowerCase();
+
+    if (searchtext == '') {
+        reset();
+        return;
+    }
+    searchForText(searchtext);
+};
+
+
+var searchForText = function(searchText) {
+    var results = [];
+    
+    var theSearchResults = [];
+
     for (var index in rawRows) {
 	var rawRow = rawRows[index];
 	var found = false;
 	for (var responseIndex in rawRow) {
 	    var value = rawRow[responseIndex].toLowerCase();
-	    if (value.indexOf(searchtext) >= 0) {
+	    if (value.indexOf(searchText) >= 0) {
 		found = true;
 		break;
 	    }
@@ -20,12 +47,21 @@ var search = function() {
 	    var internalIndex = index-1;
 	    //results.push(index);
 	    results.push('<li><button class="btn btn-link" onclick="displayIndex('+internalIndex+')">'+index+'</button></li>');
+
+            theSearchResults.push(internalIndex);
 	}
     }
     //console.log("results: "+results);
 
     results.join('');
     $('#results').html('<ul>'+results.join('')+'</ul>');
+
+    if (theSearchResults.length == 0) {
+        searchResults = null;
+    }
+    else {
+        searchResults = theSearchResults;
+    }
 }
 
 
@@ -49,25 +85,49 @@ var displaySpecified = function() {
 }
 
 var displayPrevious = function() {
-    if (currentRowIndex > 0) {
-	currentRowIndex = currentRowIndex - 1;
-	displayCurrentRow();
+    if (searchResults == null) {
+        if (currentRowIndex > 0) {
+	    currentRowIndex = currentRowIndex - 1;
+	    displayCurrentRow();
+        }
+        else {
+	    alert("already on the first one!");
+        }
     }
     else {
-	alert("already on the first one!");
+        var resultIndex = searchResults.indexOf(currentRowIndex);
+        if (resultIndex == 0) {
+            alert('already on the first one!');
+        }
+        else {
+            currentRowIndex = searchResults[resultIndex-1];
+            displayCurrentRow();
+        }
     }
 }
 
 
 var displayNext = function() {
     var length = rowsAsHtml.length;
-    if (currentRowIndex < length -1) {
-	currentRowIndex = currentRowIndex + 1;
-	displayCurrentRow();
-    }
-    else {
-	alert("already on the last one!");
-    }
+    if (searchResults == null) {
+        if (currentRowIndex < length -1) {
+	    currentRowIndex = currentRowIndex + 1;
+	    displayCurrentRow();
+        }
+        else {
+	    alert("already on the last one!");
+        }
+     }
+     else {
+         var resultIndex = searchResults.indexOf(currentRowIndex);
+         if (resultIndex == searchResults.length-1) {
+	     alert("already on the last one!");
+         }
+         else {
+             currentRowIndex = searchResults[resultIndex+1];
+             displayCurrentRow();
+         }
+     }
 }
 
 
@@ -98,11 +158,11 @@ var formatRows = function(result) {
 	htmlLines.push('<ul>');
 	var row = rows[rowKey];
 	for (var cellKey in headers) {
-	    if (cellKey == 'A') {
-		continue;
-	    }
 
 	    var headerCell = headers[cellKey];
+            if (headerCell == 'Timestamp') {
+                headerCell = 'Application date';
+            }
 	    var dataCell = row[cellKey] || "No answer";
 	    htmlLines.push('<li>');
 	    htmlLines.push('<div class="question">'+headerCell+'</div>');

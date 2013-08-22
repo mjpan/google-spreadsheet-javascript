@@ -129,9 +129,7 @@ GoogleSpreadsheet.callbackCells = function(data) {
 	    rowValues = {};
 	    rowIndex = row;
 	}
-	else {
-	    rowValues[column] = cell.content.$t;
-	}
+	rowValues[column] = cell.content.$t;
     }
       _results.push(rowValues);
 
